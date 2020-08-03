@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>CS498 Narrative Visualization</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <link rel="stylesheet" href="scene2.css">
+</head>
+
+<body>
+
+    <div>
+    <h1>United States Violent Crime By Category For 50 States</h1>
+    <div style="width:100%;float: right;text-align: center;font-size: 22px;color:#4458E8;">
+       <p> Across all categories, the same set of states have the most prominent crimes</p>
+    </div>
+
+    <div>
+      <div style="width:25%;float: left">
+        <button class="button button1" type="button" onclick="location.href='bubbles.html'"> Total Violent Crime </button>
+
+        <button class="button" type="button"> Violet Crime By Category </button>
+      </div>
+
+    </div>
+
+    <div id="container1">
+    <h1>Murder</h1>
+    <svg id="murder" width="500" height="280" preserveAspectRatio="xMinYMin meet"> </svg>
+    </div>
+    <div id="container2" style="width: 100%">
+      <div id="container21" style="width:33%;float: left">
+        <h1 style="text-align: center">Rape</h1>
+        <svg id="rape" width="500" height="280" preserveAspectRatio="xMinYMin meet" style="align-items: left"> </svg>
+      </div>
+
+      <div id="container22" style="width: 33%;float: left">
+        <h1 style="text-align: center">Robbery</h1>
+        <svg id="robbery" width="500" height="280" preserveAspectRatio="xMinYMin meet" style="align-items: center;"> </svg>
+      </div>
+    
+      <div id="container23" style="width: 33%;float: right">
+        <h1 style="text-align: center">Assault</h1>
+        <svg id="assault" width="500" height="280" preserveAspectRatio="xMinYMin meet" style="align-items: right"> </svg>
+      </div>
+  </div>
+  </div>
+<script>
+  
+  var murderSvg = d3.select("#murder");
+  var width = +murderSvg.attr("width");
+  var height = +murderSvg.attr("height");
+
+  d3.csv("statecrime.csv", function(data) {
+              data.value = +data["murder"];
+              return data;
+        }, function(error, data) {
+            if (error) {
+              console.log(error)
+              throw error;
+            }
+
+            var pack = d3.pack()
+               .padding(2)
+               .size([width, height]);
+
+            var tooltip = d3.select("body").append("div").attr("class", "tooltip");
+          
+            var colors = d3.scaleOrdinal()
+                          .domain(data.map(function(d){ return d.state;}))
+                          .range(['#F9E79F', '#F1C40F', '#F5B041', '#EB984E']);
+
+            var parent = d3.hierarchy({children: data})
+                         .sum(function(d) { return d.value; })
+                         .sort(function(a, b) { return b.value - a.value; });
+
+            var node = murderSvg.selectAll(".node")
+                      .data(pack(parent).leaves())
+                      .enter().append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+              
+         
+            node.append("circle")
+                .attr("id", function(d) { return d.id; })
+                .attr("r", function(d) { return d.r; })
+                .style("fill", function(d) { return colors(d.data.state); })
+                .on("mouseover", function(d, i) {
+                      tooltip.style("left", d3.event.pageX + "px")
+                          .style("top", d3.event.pageY + "px")
+                          .style("display", "inline-block")
+                          .html((d.data.state + "<br>" + d.data.value ));})        
+                .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+  });
+
+</script>
+<script>
+
+  var rapeSvg = d3.select("#rape");
+  var width = +rapeSvg.attr("width");
+  var height = +rapeSvg.attr("height");
+
+  d3.csv("statecrime.csv", function(data) {
+              data.value = +data["rape"];
+              return data;
+        }, function(error, data) {
+            if (error) {
+              console.log(error)
+              throw error;
+            }
+
+            var pack = d3.pack()
+               .padding(2)
+               .size([width, height]);
+
+            var tooltip = d3.select("body").append("div").attr("class", "tooltip");
+          
+            var colors = d3.scaleOrdinal()
+                          .domain(data.map(function(d){ return d.state;}))
+                          .range(['#D7BDE2', '#AF7AC5', '#A569BD', '#7D3C98']);
+
+            var parent = d3.hierarchy({children: data})
+                         .sum(function(d) { return d.value; })
+                         .sort(function(a, b) { return b.value - a.value; });
+
+            var node = rapeSvg.selectAll(".node")
+                      .data(pack(parent).leaves())
+                      .enter().append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+              
+         
+            node.append("circle")
+                .attr("id", function(d) { return d.id; })
+                .attr("r", function(d) { return d.r; })
+                .style("fill", function(d) { return colors(d.data.state); })
+                .on("mouseover", function(d, i) {
+                      tooltip.style("left", d3.event.pageX + "px")
+                          .style("top", d3.event.pageY + "px")
+                          .style("display", "inline-block")
+                          .html((d.data.state + "<br>" + d.data.value ));})        
+                .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+  });
+  
+
+</script>
+
+<script>
+  
+  var robberySvg = d3.select("#robbery");
+  var width = +robberySvg.attr("width");
+  var height = +robberySvg.attr("height");
+
+  d3.csv("statecrime.csv", function(data) {
+              data.value = +data["robbery"];
+              return data;
+        }, function(error, data) {
+            if (error) {
+              console.log(error)
+              throw error;
+            }
+
+            var pack = d3.pack()
+               .padding(2)
+               .size([width, height]);
+
+            var tooltip = d3.select("body").append("div").attr("class", "tooltip");
+          
+            var colors = d3.scaleOrdinal()
+                          .domain(data.map(function(d){ return d.state;}))
+                          .range(['#AAB7B8', '#707B7C', '#85929E', '#808B96']);
+
+            var parent = d3.hierarchy({children: data})
+                         .sum(function(d) { return d.value; })
+                         .sort(function(a, b) { return b.value - a.value; });
+
+            var node = robberySvg.selectAll(".node")
+                      .data(pack(parent).leaves())
+                      .enter().append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+              
+         
+            node.append("circle")
+                .attr("id", function(d) { return d.id; })
+                .attr("r", function(d) { return d.r; })
+                .style("fill", function(d) { return colors(d.data.state); })
+                .on("mouseover", function(d, i) {
+                      tooltip.style("left", d3.event.pageX + "px")
+                          .style("top", d3.event.pageY + "px")
+                          .style("display", "inline-block")
+                          .html((d.data.state + "<br>" + d.data.value ));})        
+                .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+  });
+
+</script>
+<script>
+
+  var assaultSvg = d3.select("#assault");
+  var width = +assaultSvg.attr("width");
+  var height = +assaultSvg.attr("height");
+
+  d3.csv("statecrime.csv", function(data) {
+              data.value = +data["assault"];
+              return data;
+        }, function(error, data) {
+            if (error) {
+              console.log(error)
+              throw error;
+            }
+
+            var pack = d3.pack()
+               .padding(2)
+               .size([width, height]);
+
+            var tooltip = d3.select("body").append("div").attr("class", "tooltip");
+          
+            var colors = d3.scaleOrdinal()
+                          .domain(data.map(function(d){ return d.state;}))
+                          .range(['#26a65b','#7FCC86','#019875','#58C262']);
+
+            var parent = d3.hierarchy({children: data})
+                         .sum(function(d) { return d.value; })
+                         .sort(function(a, b) { return b.value - a.value; });
+
+            var node = assaultSvg.selectAll(".node")
+                      .data(pack(parent).leaves())
+                      .enter().append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+              
+         
+            node.append("circle")
+                .attr("id", function(d) { return d.id; })
+                .attr("r", function(d) { return d.r; })
+                .style("fill", function(d) { return colors(d.data.state); })
+                .on("mouseover", function(d, i) {
+                      tooltip.style("left", d3.event.pageX + "px")
+                          .style("top", d3.event.pageY + "px")
+                          .style("display", "inline-block")
+                          .html((d.data.state + "<br>" + d.data.value ));})        
+                .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+  });
+
+</script>
+<br>
+     <div>
+     
+      <h3 style="padding-top: 5px"> Hover the mouse over the bubbles to see the exact number of cases for each state. Click on "Total Violent Crime" button to view total crime for all 50 states .</h3>
+     </div>
+  <a href="bubbles.html" style="font-size: 22px">Go Back </a> <br>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>d3 Updating Bar Chart With Dropdown</title>
+        <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+        <link rel="stylesheet" href="scene3.css">
+    </head>
+    <body>
+        <h1 style="text-align: center;">United States Violent Crime By Category For Selected State</h1>
+        <div id='barChartContainer'></div>
+
+        <script type="text/javascript">
+            var crimeFields = ["murder", "rape", "robbery", "assault"];
+
+            var margin = { top: 30, right: 50, bottom: 60, left: 70 },
+                    width  = 960 - margin.left - margin.right,
+                    height = 500 - margin.top  - margin.bottom;
+
+            var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
+            d3.csv('statecrime.csv', function(error, data) {
+                var crimeMap = {};
+                data.forEach(function(d) {
+                    var state = d.state;
+                    crimeMap[state] = [];
+
+                    crimeFields.forEach(function(field) {
+                        crimeMap[state].push( +d[field] );
+                    });
+                });
+                createBarVisualization(crimeMap);
+            });
+
+            var createBarVisualization = function(crimeMap) {
+
+                var xScale = d3.scaleBand()
+                    .domain(crimeFields)
+                    .rangeRound([0, width])
+                    .padding(0.4);
+
+                var yScale = d3.scaleLinear()
+                    .rangeRound([height, 0]);
+
+
+                var xAxis = d3.axisBottom(xScale)
+
+                var yAxis = d3.axisLeft(yScale)
+                    .ticks(5)
+                    .tickFormat(function(d) { return parseInt(d / 1000) + "k"; })
+                    .tickSizeInner([-width])
+
+                var canvas = d3.select("#barChartContainer")
+                               .append("svg")
+                               .attr("width",  width  + margin.left + margin.right)
+                               .attr("height", height + margin.top  + margin.bottom)
+                               .append("g")
+                               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+ 
+                canvas.append("g")
+                      .call(xAxis)
+                      .attr("transform", "translate(0," + height + ")")
+                      .attr("class", "axisstyle")
+                    
+                canvas.append("text")             
+                      .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
+                      .attr("x", 0 - margin.left)
+                      .attr("y", 0 - (height - 415 ))
+                      .style("text-anchor", "middle")
+                      .style("font-size", "18px")
+                      .text("Crime Category");
+
+                var yAxisParamToUpdate = canvas.append("g")
+                                               .call(yAxis)
+                                               .attr("class", "axisstyle")
+                    
+
+                canvas.append("text")
+                      .attr("transform", "rotate(-90)")
+                      .attr("y", 0 - margin.left)
+                      .attr("x",0 - (height / 2))
+                      .attr("dy", "1em")
+                      .style("font-size", "18px")
+                      .style("text-anchor", "middle")
+                      .text("Number of Cases");
+
+                var updateBarChart = function(data) {
+                    yScale.domain([0, d3.max(data, function(d) { return d; })]);
+                    yAxisParamToUpdate.call(yAxis);
+
+                    var bars = canvas.selectAll(".bar").data(data);
+
+                    bars.enter()
+                        .append("rect")
+                        .attr("x", function(d,i) { return xScale( crimeFields[i] ); })
+                        .attr("y", function(d) { return yScale(d); })
+                        .attr("width", xScale.bandwidth())
+                        .attr("height", function(d) {return height - yScale(d); })
+                        .attr("class", "bar")
+                        .on("mousemove", function(d, i){
+                            tooltip
+                              .style("left", d3.event.pageX - 50 + "px")
+                              .style("top", d3.event.pageY - 70 + "px")
+                              .style("display", "inline-block")
+                              .html((crimeFields[i] + " : " + d ));
+                        })
+                        .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+                    bars.transition()
+                        .duration(250)
+                        .attr("y", function(d) { return yScale(d); })
+                        .attr("height", function(d) { return height - yScale(d); });
+
+                    bars.exit().remove();
+                };
+
+                var selectionChange = function() {
+                    var selectedState = d3.select(this).property('value');
+                    var selectedStateData = crimeMap[selectedState];
+
+                    updateBarChart(selectedStateData);
+                };
+
+
+                var states = Object.keys(crimeMap).sort();
+
+                var dropDownBox = d3.select("#barChartContainer")
+                                    .insert("select", "svg")
+                                    .on("change", selectionChange);
+
+                dropDownBox.selectAll("option")
+                           .data(states)
+                           .enter().append("option")
+                           .attr("value", function(d) {return d;})
+                           .text(function (d) {return d;});
+                updateBarChart(crimeMap[states[0]]);
+            };
+        </script>
+
+
+<body>
+  <div>
+    <h3> Select a state using drop-down list to view crime data for particular state.</h3>
+  </div>
+
+
+  <a href="../index.html" style="font-size: 22px">Click To Start Over </a> <br>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>CS498 Narrative Visualization</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <link rel="stylesheet" href="scene2.css">
+</head>
+<body>
+
+  <div id="divContainer">
+    <h1>Total Violent Crime Bubble Chart For 50 States</h1>
+
+    <div style="width:100%;float: right;text-align: right;font-size: 22px;color:#4458E8">
+       <p> California, Texas and Florida have the highest violent crimes </p>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <div id="divContainer1">
+      <div style="width:25%;float: left">
+        <button id="totalCrime" class="button button1" type="button"> Total Violent Crime </button>
+        <button id="category" class="button" type="button" onclick="location.href='bubblesByCategory.html'"> Violet Crime By Category </button>
+      </div>
+
+      <div style="width:75%;float: left">
+        <svg width="1000" height="600" viewBox="0 0 1000 600" preserveAspectRatio="xMinYMin meet" class="svgstyle"> </svg>
+      </div>
+  </div>
+<script>
+  
+  var svg = d3.select("svg");
+  var width = +svg.attr("width");
+  var height = +svg.attr("height");
+
+  d3.csv("statecrime.csv", function(data) {
+              data.value = +data["violentcrime"];
+              return data;
+        }, function(error, data) {
+            if (error) {
+              console.log(error)
+              throw error;
+            }
+
+            var pack = d3.pack()
+               .padding(2)
+               .size([width, height]);
+
+            var tooltip = d3.select("body").append("div").attr("class", "tooltip");
+          
+            var colors = d3.scaleOrdinal()
+                  .domain(data.map(function(d){return d.state;}))
+                  .range(['#E6B0AA','#CD6155','#EC7063','#CD6155']);
+
+            var parent = d3.hierarchy({children: data})
+                         .sum(function(d) { return d.value; })
+                         .sort(function(a, b) { return b.value - a.value; });
+
+            var node = svg.selectAll(".node")
+                      .data(pack(parent).leaves())
+                      .enter().append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+              
+         
+            node.append("circle")
+                .attr("id", function(d) { return d.id; })
+                .attr("r", function(d) { return d.r; })
+                .style("fill", function(d) { return colors(d.data.state); })
+                .on("mouseover", function(d, i) {
+                      tooltip.style("left", d3.event.pageX + "px")
+                          .style("top", d3.event.pageY + "px")
+                          .style("display", "inline-block")
+                          .html((d.data.state + "<br>" + d.data.value ));})        
+                .on("mouseout", function(d){ tooltip.style("display", "none");});
+
+  });
+
+</script>
+     <div>
+      <h3> Hover the mouse over the bubbles to see the exact number of cases for each state. <br>
+      Click on "Violent Crime By Category" button to view crime by category for all 50 states .</h3>
+     </div>
+  
+
+  <a href="../scene3/scene3.html" style="font-size: 22px">Click Next </a> <br>
+</body>
+</html>

@@ -1,0 +1,26 @@
+body {
+  background-color: #F2F4F8   
+}
+
+.axisstyle {
+  font: 15px Arial;
+}
+.axisstyle line,
+.axisstyle path {
+  stroke: #D4D8DA;
+  shape-rendering: crispEdges;
+}
+.axisLabelStyle {
+  font: 15px Arial;
+}
+.toolTip {
+  position: absolute;
+  display: none;
+  background: none repeat scroll 0 0 #F2F4F8;
+  padding: 8px;
+  border: 1px solid #6F257F;
+  text-align: center;
+}
+.bar {
+  fill: steelblue;
+}

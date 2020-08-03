@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>CS498 Narrative Visualization</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <link rel="stylesheet" href="scene1.css">
+  </style>
+</head>
+<body>
+
+<h1 style="text-align: center;">United States Violent Crime By Category</h1>
+
+<div>
+  <svg width="960" height="500"></svg>
+</div>
+
+<script>
+  var svg = d3.select("svg"),
+      margin = {top: 30, right: 50, bottom: 60, left: 70},
+      width = +svg.attr("width") - margin.left - margin.right,
+      height = +svg.attr("height") - margin.top - margin.bottom;
+    
+  var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
+  var canvas = svg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("USViolentCrimeData.csv", function(error, crimeData) {
+      if (error) {
+        console.log(error);
+        throw error;
+      }
+
+      crimeData.forEach(function(d) {
+          d.totalValue = +d.totalValue;
+      });
+
+      var xScale = d3.scaleBand()
+                      .domain(crimeData.map(function(d) { return d.crimeCategory; }))
+                      .rangeRound([0, width])
+                      .padding(0.4);
+      
+      var yScale = d3.scaleLinear()
+                     .domain([0, d3.max(crimeData, function(d) { return d.totalValue; })])
+                     .rangeRound([height, 0]);
+
+      var xAxis = d3.axisBottom(xScale)
+      var yAxis = d3.axisLeft(yScale)
+                    .tickFormat(function(d) { return parseInt(d / 1000) + "k"; })
+                    .tickSizeInner([-width])
+
+      canvas.append("g")
+          .call(xAxis)
+          .attr("transform", "translate(0," + height + ")")
+          .attr("class", "axisstyle")   
+
+      canvas.append("text")             
+            .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
+            .attr("x", 0 - margin.left)
+            .attr("y", 0 - (height - 415 ))
+            .style("text-anchor", "middle")
+            .style("font-size", "18px")
+            .text("Crime Category");
+
+      canvas.append("text")             
+            .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
+            .attr("x", 0 - margin.left)
+            .attr("y", 0 - (height - 20 ))
+            .style("text-anchor", "middle")
+            .style("font-size", "22px")
+            .attr("fill", "#4458E8")
+            .text("Assault is the most common form of violent crime");
+
+      canvas.append("g")
+          .call(yAxis)
+          .attr("class", "axisstyle");
+
+      
+      canvas.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("font-size", "18px")
+            .style("text-anchor", "middle")
+            .text("Number of Cases");  
+
+      canvas.selectAll(".bar")
+          .data(crimeData)
+          .enter().append("rect")
+          .attr("x", function(d) { return xScale(d.crimeCategory); })
+          .attr("y", function(d) { return yScale(d.totalValue); })
+          .attr("width", xScale.bandwidth())
+          .attr("height", function(d) { return height - yScale(d.totalValue); })
+          .attr("class", "bar")
+          .on("mousemove", function(d){
+              tooltip
+                .style("left", d3.event.pageX - 50 + "px")
+                .style("top", d3.event.pageY - 70 + "px")
+                .style("display", "inline-block")
+                .html((d.crimeCategory) + "<br>" + (d.totalValue));
+          })
+          .on("mouseout", function(d){ tooltip.style("display", "none");});
+  });
+</script>
+
+  <h3> Hover the mouse over the bars to see the exact number of cases for each category.</h3> 
+  <div>
+  <a href="../scene2/bubbles.html" style="font-size: 22px">Click Next </a> 
+  </div>
+
+</body>
+</html>

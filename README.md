@@ -1,1 +1,2 @@
-# cs498crimevisualization
+# CS498NarrativeVisualization
+CS498NarrativeVisualization
